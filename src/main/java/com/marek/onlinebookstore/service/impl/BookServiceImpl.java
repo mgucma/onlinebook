@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class BookServiceImpl implements BookService {
-    private BookRepository bookRepository;
-    private BooksMapper bookMapping;
+    private final BookRepository bookRepository;
+    private final BooksMapper bookMapping;
 
     @Override
     public BookDto save(CreateBookRequestDto createBookRequestDto) {
@@ -39,8 +39,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteById(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new EntityNotFoundException("Can't delete book with id: "
+                    + id + " because it does not exist.");
+        }
         bookRepository.deleteById(id);
-
     }
 
     @Override
@@ -51,4 +54,3 @@ public class BookServiceImpl implements BookService {
         return bookMapping.toBookDto(model);
     }
 }
-
