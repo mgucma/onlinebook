@@ -2,9 +2,9 @@ package com.marek.onlinebookstore.service.impl;
 
 import com.marek.onlinebookstore.dto.BookDto;
 import com.marek.onlinebookstore.dto.CreateBookRequestDto;
-import com.marek.onlinebookstore.entity.Book;
 import com.marek.onlinebookstore.exception.EntityNotFoundException;
 import com.marek.onlinebookstore.mapper.BooksMapper;
+import com.marek.onlinebookstore.model.Book;
 import com.marek.onlinebookstore.repository.BookRepository;
 import com.marek.onlinebookstore.service.BookService;
 import java.util.List;
@@ -19,7 +19,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto save(CreateBookRequestDto createBookRequestDto) {
-        Book book = bookMapping.toEntity(createBookRequestDto);
+        Book book = bookMapping.toModel(createBookRequestDto);
         return bookMapping.toBookDto(bookRepository.save(book));
     }
 
@@ -36,4 +36,19 @@ public class BookServiceImpl implements BookService {
                 bookRepository.findById(id).orElseThrow(
                         () -> new EntityNotFoundException("Can't find book with id: " + id)));
     }
+
+    @Override
+    public void deleteById(Long id) {
+        bookRepository.deleteById(id);
+
+    }
+
+    @Override
+    public BookDto update(Long id, CreateBookRequestDto createBookRequestDto) {
+        Book model = bookMapping.toModel(createBookRequestDto);
+        model.setId(id);
+        bookRepository.updateBookById(id, model);
+        return bookMapping.toBookDto(model);
+    }
 }
+
