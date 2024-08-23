@@ -22,7 +22,6 @@ public class BookSpecificationBuilder implements SpecificationBuilder<Book> {
         parametersMap.put("title", searchParametersDto.title());
         parametersMap.put("author", searchParametersDto.author());
         parametersMap.put("isbn", searchParametersDto.isbn());
-
         for (Map.Entry<String, String[]> entry : parametersMap.entrySet()) {
             String[] values = entry.getValue();
             if (values != null && values.length > 0) {
@@ -31,7 +30,6 @@ public class BookSpecificationBuilder implements SpecificationBuilder<Book> {
                         .getSpecification(values));
             }
         }
-
         return specification;
     }
 }
