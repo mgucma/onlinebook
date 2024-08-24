@@ -1,14 +1,23 @@
 package com.marek.onlinebookstore.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
-import lombok.Data;
 
-@Data
-public class CreateBookRequestDto {
-    private String title;
-    private String author;
-    private String isbn;
-    private BigDecimal price;
-    private String description;
-    private String coverImage;
+public record CreateBookRequestDto(
+        @NotBlank
+        String title,
+        @NotBlank
+        String author,
+        @NotBlank
+        String isbn,
+        @NotNull
+        @PositiveOrZero
+        BigDecimal price,
+        @NotBlank
+        String description,
+        @NotBlank
+        String coverImage
+) {
 }
