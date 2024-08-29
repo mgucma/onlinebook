@@ -1,6 +1,6 @@
 package com.marek.onlinebookstore.exception;
 
-public class RegistrationException extends RuntimeException {
+public class RegistrationException extends Exception {
     public RegistrationException() {
     }
 
@@ -12,4 +12,3 @@ public class RegistrationException extends RuntimeException {
         super(message, cause);
     }
 }
-

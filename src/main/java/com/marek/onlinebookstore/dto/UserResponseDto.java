@@ -1,12 +1,10 @@
 package com.marek.onlinebookstore.dto;
 
-import lombok.Data;
+public record UserResponseDto(
+        Long id,
+        String email,
+        String firstName,
+        String lastName,
+        String shippingAddress
+) {}
 
-@Data
-public class UserResponseDto {
-    private Long id;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private String shippingAddress;
-}

@@ -16,14 +16,15 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserResponseDto register(UserRegistrationRequestDto request) {
-        checkIfUserExists(request.getEmail());
+    public UserResponseDto register(UserRegistrationRequestDto request)
+            throws RegistrationException {
+        checkIfUserExists(request.email());
         User user = userMapper.toModel(request);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
 
-    private void checkIfUserExists(String email) {
+    private void checkIfUserExists(String email) throws RegistrationException {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RegistrationException("User already exists");
         }
