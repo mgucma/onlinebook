@@ -1,4 +1,4 @@
-package com.marek.onlinebookstore.dto;
+package com.marek.onlinebookstore.dto.user;
 
 public record UserResponseDto(
         Long id,

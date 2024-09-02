@@ -1,4 +1,4 @@
-package com.marek.onlinebookstore.dto;
+package com.marek.onlinebookstore.dto.book;
 
 public record BookSearchParametersDto(
         String[] title,

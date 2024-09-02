@@ -1,8 +1,8 @@
-package com.marek.onlinebookstore.service;
+package com.marek.onlinebookstore.service.book;
 
-import com.marek.onlinebookstore.dto.BookDto;
-import com.marek.onlinebookstore.dto.BookSearchParametersDto;
-import com.marek.onlinebookstore.dto.CreateBookRequestDto;
+import com.marek.onlinebookstore.dto.book.BookDto;
+import com.marek.onlinebookstore.dto.book.BookSearchParametersDto;
+import com.marek.onlinebookstore.dto.book.CreateBookRequestDto;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 

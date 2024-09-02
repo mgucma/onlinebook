@@ -1,6 +1,6 @@
 package com.marek.onlinebookstore.repository.book;
 
-import com.marek.onlinebookstore.dto.BookSearchParametersDto;
+import com.marek.onlinebookstore.dto.book.BookSearchParametersDto;
 import com.marek.onlinebookstore.model.Book;
 import com.marek.onlinebookstore.repository.SpecificationBuilder;
 import com.marek.onlinebookstore.repository.SpecificationProviderManager;
