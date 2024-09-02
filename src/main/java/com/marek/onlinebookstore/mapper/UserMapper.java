@@ -1,8 +1,8 @@
 package com.marek.onlinebookstore.mapper;
 
 import com.marek.onlinebookstore.config.MapperConfig;
-import com.marek.onlinebookstore.dto.UserRegistrationRequestDto;
-import com.marek.onlinebookstore.dto.UserResponseDto;
+import com.marek.onlinebookstore.dto.user.UserRegistrationRequestDto;
+import com.marek.onlinebookstore.dto.user.UserResponseDto;
 import com.marek.onlinebookstore.model.User;
 import org.mapstruct.Mapper;
 

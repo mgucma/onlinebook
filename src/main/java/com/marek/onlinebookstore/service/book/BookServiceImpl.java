@@ -1,14 +1,13 @@
-package com.marek.onlinebookstore.service.impl;
+package com.marek.onlinebookstore.service.book;
 
-import com.marek.onlinebookstore.dto.BookDto;
-import com.marek.onlinebookstore.dto.BookSearchParametersDto;
-import com.marek.onlinebookstore.dto.CreateBookRequestDto;
+import com.marek.onlinebookstore.dto.book.BookDto;
+import com.marek.onlinebookstore.dto.book.BookSearchParametersDto;
+import com.marek.onlinebookstore.dto.book.CreateBookRequestDto;
 import com.marek.onlinebookstore.exception.EntityNotFoundException;
 import com.marek.onlinebookstore.mapper.BooksMapper;
 import com.marek.onlinebookstore.model.Book;
 import com.marek.onlinebookstore.repository.book.BookRepository;
 import com.marek.onlinebookstore.repository.book.BookSpecificationBuilder;
-import com.marek.onlinebookstore.service.BookService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -55,10 +54,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto update(Long id, CreateBookRequestDto book) {
-        Book modelBook = bookMapping.toModel(book);
-        modelBook.setId(id);
-        return bookMapping.toBookDto(bookRepository.save(modelBook));
+    public BookDto update(Long id, CreateBookRequestDto bookRequestDto) {
+        if (!bookRepository.findById(id).isPresent()) {
+            throw new EntityNotFoundException("Can't find book with id: " + id);
+        }
+        Book book = bookMapping.toModel(bookRequestDto);
+        book.setId(id);
+        return bookMapping.toBookDto(bookRepository.save(book));
     }
 
     @Override
