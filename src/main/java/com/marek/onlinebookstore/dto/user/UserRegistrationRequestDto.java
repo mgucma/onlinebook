@@ -1,4 +1,4 @@
-package com.marek.onlinebookstore.dto;
+package com.marek.onlinebookstore.dto.user;
 
 import com.marek.onlinebookstore.annotation.FieldMatch;
 import jakarta.validation.constraints.Email;

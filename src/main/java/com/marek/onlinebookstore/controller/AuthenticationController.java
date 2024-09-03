@@ -1,7 +1,8 @@
 package com.marek.onlinebookstore.controller;
 
-import com.marek.onlinebookstore.dto.UserRegistrationRequestDto;
-import com.marek.onlinebookstore.dto.UserResponseDto;
+import com.marek.onlinebookstore.dto.user.UserLoginRequestDto;
+import com.marek.onlinebookstore.dto.user.UserRegistrationRequestDto;
+import com.marek.onlinebookstore.dto.user.UserResponseDto;
 import com.marek.onlinebookstore.exception.RegistrationException;
 import com.marek.onlinebookstore.service.user.UserService;
 import jakarta.validation.Valid;
@@ -21,6 +22,11 @@ public class AuthenticationController {
     public UserResponseDto register(
             @RequestBody @Valid UserRegistrationRequestDto request) throws RegistrationException {
         return userService.register(request);
+    }
+
+    @PostMapping("/login")
+    public boolean login(@RequestBody @Valid UserLoginRequestDto loginRequestDto) {
+        return true;
     }
 }
 
