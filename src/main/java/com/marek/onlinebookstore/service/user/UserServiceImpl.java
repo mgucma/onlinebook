@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private static final RoleName USER = RoleName.ROLE_USER;
+    private static final RoleName DEFAULT_ROLE_NAME = RoleName.ROLE_USER;
     private static final Role role = new Role();
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
