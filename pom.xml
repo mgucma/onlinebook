@@ -8,8 +8,8 @@
         <version>3.3.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>org.example</groupId>
-    <artifactId>jv-spring-boot-first-Book</artifactId>
+    <groupId>com.marek</groupId>
+    <artifactId>onlinebookstore</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>jv-spring-boot-first-Book</name>
     <description>jv-spring-boot-first-Book</description>
