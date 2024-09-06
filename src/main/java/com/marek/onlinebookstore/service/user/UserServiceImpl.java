@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
             throws RegistrationException {
         checkIfUserExists(request.email());
         User user = userMapper.toEntity(request);
-        Role getRole = roleRepository.findByName(USER).orElseGet(
+        Role getRole = roleRepository.findByName(DEFAULT_ROLE_NAME).orElseGet(
                 () -> roleRepository.save(role)
         );
         user.setRoles(Set.of(getRole));

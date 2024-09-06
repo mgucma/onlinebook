@@ -5,7 +5,7 @@ import com.marek.onlinebookstore.dto.book.BookDtoWithoutCategoryIds;
 import com.marek.onlinebookstore.dto.book.BookSearchParametersDto;
 import com.marek.onlinebookstore.dto.book.CreateBookRequestDto;
 import com.marek.onlinebookstore.exception.EntityNotFoundException;
-import com.marek.onlinebookstore.mapper.BooksMapper;
+import com.marek.onlinebookstore.mapper.BookMapper;
 import com.marek.onlinebookstore.model.Book;
 import com.marek.onlinebookstore.repository.book.BookRepository;
 import com.marek.onlinebookstore.repository.book.BookSpecificationBuilder;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final CategoryRepository categoryRepository;
-    private final BooksMapper bookMapping;
+    private final BookMapper bookMapping;
     private final BookSpecificationBuilder bookSpecificationBuilder;
 
     @Override
