@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,8 +23,10 @@ public class JwtUtil {
         secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Map<String, Object> additionalClaims) {
+
         return Jwts.builder()
+                .setClaims(additionalClaims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -46,7 +49,7 @@ public class JwtUtil {
         return getClaim(tokenFromRequest, Claims::getSubject);
     }
 
-    private <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims body = Jwts.parser()
                 .setSigningKey(secret)
                 .build()
@@ -54,5 +57,17 @@ public class JwtUtil {
                 .getBody();
         return claimsResolver.apply(body);
     }
-}
 
+    public String getUserRole(String tokenFromRequest) {
+        Claims claims = getAllClaims(tokenFromRequest);
+        return claims.get("role", String.class); // Assuming role is stored as a string
+    }
+
+    private Claims getAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+}

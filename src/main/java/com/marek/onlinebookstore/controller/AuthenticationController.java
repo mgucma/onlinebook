@@ -5,7 +5,7 @@ import com.marek.onlinebookstore.dto.user.login.UserLoginResponseDto;
 import com.marek.onlinebookstore.dto.user.register.UserRegistrationRequestDto;
 import com.marek.onlinebookstore.dto.user.register.UserRegistrationResponseDto;
 import com.marek.onlinebookstore.exception.RegistrationException;
-import com.marek.onlinebookstore.security.token.AuthenticationService;
+import com.marek.onlinebookstore.service.user.AuthenticationService;
 import com.marek.onlinebookstore.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
