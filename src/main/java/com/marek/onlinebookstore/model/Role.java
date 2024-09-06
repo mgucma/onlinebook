@@ -26,8 +26,6 @@ public class Role implements GrantedAuthority {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     private RoleName name;
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
 
     @Override
     public String getAuthority() {
