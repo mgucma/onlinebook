@@ -7,6 +7,7 @@ import com.marek.onlinebookstore.mapper.UserMapper;
 import com.marek.onlinebookstore.model.Role;
 import com.marek.onlinebookstore.model.RoleName;
 import com.marek.onlinebookstore.model.User;
+import com.marek.onlinebookstore.repository.role.RoleRepository;
 import com.marek.onlinebookstore.repository.user.UserRepository;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private static final RoleName USER = RoleName.ROLE_USER;
     private static final Role role = new Role();
+    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
@@ -28,10 +30,12 @@ public class UserServiceImpl implements UserService {
     public UserRegistrationResponseDto register(UserRegistrationRequestDto request)
             throws RegistrationException {
         checkIfUserExists(request.email());
-        User user = userMapper.toModel(request);
+        User user = userMapper.toEntity(request);
+        Role getRole = roleRepository.findByName(USER).orElseGet(
+                () -> roleRepository.save(role)
+        );
+        user.setRoles(Set.of(getRole));
         user.setPassword(passwordEncoder.encode(request.password()));
-        role.setName(USER);
-        user.setRoles(Set.of(role));
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
