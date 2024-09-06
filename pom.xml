@@ -11,8 +11,8 @@
     <groupId>com.marek</groupId>
     <artifactId>onlinebookstore</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>jv-spring-boot-first-Book</name>
-    <description>jv-spring-boot-first-Book</description>
+    <name>online bookstore</name>
+    <description>online bookstore</description>
     <url/>
     <properties>
         <java.version>17</java.version>
