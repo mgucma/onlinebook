@@ -56,7 +56,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Update book",
             description = "update book with your id")
     public BookDto update(@PathVariable Long id, @RequestBody @Valid
@@ -66,7 +66,7 @@ public class BookController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Delete book",
             description = "delete book with your id")
     public void delete(@PathVariable Long id) {
@@ -74,7 +74,7 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Search Books",
             description = "search book with your parameters => title, author, isbn")
     public List<BookDto> searchBooks(BookSearchParametersDto searchParameters,
