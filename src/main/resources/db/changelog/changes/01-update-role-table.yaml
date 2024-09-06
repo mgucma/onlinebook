@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-update-role-table
+      author: mg
+      changes:
+        - addColumn:
+            tableName: roles
+            columns:
+              - column:
+                  name: is_deleted
+                  type: bit
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
