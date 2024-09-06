@@ -1,13 +1,14 @@
 package com.marek.onlinebookstore.service.book;
 
 import com.marek.onlinebookstore.dto.book.BookDto;
+import com.marek.onlinebookstore.dto.book.BookDtoWithoutCategoryIds;
 import com.marek.onlinebookstore.dto.book.BookSearchParametersDto;
 import com.marek.onlinebookstore.dto.book.CreateBookRequestDto;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface BookService {
-    BookDto save(CreateBookRequestDto createBookRequestDto);
+    BookDtoWithoutCategoryIds save(CreateBookRequestDto createBookRequestDto);
 
     List<BookDto> findAll(Pageable pageable);
 
@@ -18,4 +19,6 @@ public interface BookService {
     BookDto update(Long id, CreateBookRequestDto createBookRequestDto);
 
     List<BookDto> searchBooks(BookSearchParametersDto searchParameters, Pageable pageable);
+
+    List<BookDtoWithoutCategoryIds> findByCategoryId(Long id, Pageable pageable);
 }
