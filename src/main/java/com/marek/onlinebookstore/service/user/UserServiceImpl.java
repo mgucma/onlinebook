@@ -11,7 +11,6 @@ import com.marek.onlinebookstore.model.User;
 import com.marek.onlinebookstore.repository.cart.ShoppingCartRepository;
 import com.marek.onlinebookstore.repository.role.RoleRepository;
 import com.marek.onlinebookstore.repository.user.UserRepository;
-import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +47,6 @@ public class UserServiceImpl implements UserService {
     private void makeShoppingCartForUser(User savedUser) {
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setUser(savedUser);
-        shoppingCart.setCartItems(new HashSet<>());
         shoppingCartRepository.save(shoppingCart);
     }
 

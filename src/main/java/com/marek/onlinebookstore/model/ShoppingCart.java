@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,15 +28,19 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = false")
 @Table(name = "shopping_carts")
 public class ShoppingCart {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @OneToMany(mappedBy = "shoppingCart", fetch = FetchType.LAZY)
     @Cascade(value = {CascadeType.ALL})
-    private Set<CartItem> cartItems;
+    private Set<CartItem> cartItems = new HashSet<>();
+
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
