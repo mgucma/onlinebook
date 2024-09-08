@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+
     @EntityGraph(attributePaths = {"roles"})
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByShippingAddress(String shippingAddress);
 }
