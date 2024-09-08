@@ -22,7 +22,7 @@ databaseChangeLog:
 
   - changeSet:
       id: insert-roles
-      author: bw
+      author: mg
       changes:
         - insert:
             tableName: roles

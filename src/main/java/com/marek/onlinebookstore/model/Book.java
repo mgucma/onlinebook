@@ -40,8 +40,8 @@ public class Book {
     private BigDecimal price;
     private String description;
     private String coverImage;
-    @Column(nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "books_categories",
@@ -49,4 +49,8 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "categories_id")
     )
     private Set<Category> categories = new HashSet<>();
+
+    public Book(Long id) {
+        this.id = id;
+    }
 }

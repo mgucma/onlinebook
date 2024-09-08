@@ -6,7 +6,9 @@ import com.marek.onlinebookstore.exception.RegistrationException;
 import com.marek.onlinebookstore.mapper.UserMapper;
 import com.marek.onlinebookstore.model.Role;
 import com.marek.onlinebookstore.model.RoleName;
+import com.marek.onlinebookstore.model.ShoppingCart;
 import com.marek.onlinebookstore.model.User;
+import com.marek.onlinebookstore.repository.cart.ShoppingCartRepository;
 import com.marek.onlinebookstore.repository.role.RoleRepository;
 import com.marek.onlinebookstore.repository.user.UserRepository;
 import java.util.Set;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private static final RoleName DEFAULT_ROLE_NAME = RoleName.ROLE_USER;
     private static final Role role = new Role();
+    private final ShoppingCartRepository shoppingCartRepository;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -37,7 +40,14 @@ public class UserServiceImpl implements UserService {
         user.setRoles(Set.of(getRole));
         user.setPassword(passwordEncoder.encode(request.password()));
         User savedUser = userRepository.save(user);
+        makeShoppingCartForUser(savedUser);
         return userMapper.toDto(savedUser);
+    }
+
+    private void makeShoppingCartForUser(User savedUser) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(savedUser);
+        shoppingCartRepository.save(shoppingCart);
     }
 
     private void checkIfUserExists(String email) throws RegistrationException {

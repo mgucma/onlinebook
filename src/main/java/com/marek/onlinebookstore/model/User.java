@@ -49,7 +49,7 @@ public class User implements UserDetails {
 
     private String shippingAddress;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted",nullable = false)
     private boolean isDeleted;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -90,3 +90,4 @@ public class User implements UserDetails {
         return true;
     }
 }
+
