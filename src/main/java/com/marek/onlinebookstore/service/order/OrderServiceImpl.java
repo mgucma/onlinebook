@@ -1,5 +1,9 @@
 package com.marek.onlinebookstore.service.order;
 
+import static com.marek.onlinebookstore.model.Status.BOOK_DELIVERED;
+import static com.marek.onlinebookstore.model.Status.ORDER_COMPLETED;
+import static com.marek.onlinebookstore.model.Status.ORDER_PENDING;
+
 import com.marek.onlinebookstore.dto.order.OrderDto;
 import com.marek.onlinebookstore.dto.order.OrderItemDto;
 import com.marek.onlinebookstore.dto.order.PlacingOrderRequestDto;
@@ -10,7 +14,6 @@ import com.marek.onlinebookstore.model.CartItem;
 import com.marek.onlinebookstore.model.Order;
 import com.marek.onlinebookstore.model.OrderItem;
 import com.marek.onlinebookstore.model.ShoppingCart;
-import com.marek.onlinebookstore.model.Status;
 import com.marek.onlinebookstore.model.User;
 import com.marek.onlinebookstore.repository.cart.ShoppingCartRepository;
 import com.marek.onlinebookstore.repository.order.OrderRepository;
@@ -31,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     public static final String MISSING_ORDER_MESSAGE = "Order with your id not found, id: ";
     public static final String MISSING_ORDER_ITEM_MESSAGE
             = "Order item with your id not found, id: ";
+
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ShoppingCartRepository shoppingCartRepository;
@@ -39,21 +43,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto makeOrder(PlacingOrderRequestDto requestDto) {
-        User user = userRepository.findByShippingAddress(requestDto.shippingAddress())
+        List<User> users = userRepository.findByShippingAddress(requestDto.shippingAddress());
+
+        User user = users.stream().findFirst()
                 .orElseThrow(
                         () -> new EntityNotFoundException("No user found for shipping address "
                                 + requestDto.shippingAddress())
                 );
-        Order newOrder = createEmptyOrder(requestDto, user);
 
+        Order newOrder = createEmptyOrder(requestDto, user);
         Order orderWithItems = fillingOrderWithItems(user, newOrder);
 
         return orderMapper.toDto(orderWithItems);
     }
 
     private Order fillingOrderWithItems(User user, Order newOrder) {
-        ShoppingCart cart = shoppingCartRepository
-                .findShoppingCartByUser(user);
+        ShoppingCart cart = shoppingCartRepository.findShoppingCartByUser(user);
         Set<OrderItem> orderItemSet = getOrderItemSet(cart, newOrder);
 
         Set<OrderItem> orderItemsWithPrice = calculatePriceForSet(orderItemSet);
@@ -63,14 +68,13 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderItem::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         newOrder.setTotal(total);
-        Order save = orderRepository.save(newOrder);
-        return save;
+        return orderRepository.save(newOrder);
     }
 
     private Order createEmptyOrder(PlacingOrderRequestDto requestDto, User user) {
         Order order = new Order();
         order.setUser(user);
-        order.setStatus(Status.PENDING);
+        order.setStatus(ORDER_PENDING);
         order.setTotal(BigDecimal.ZERO);
         order.setOrderDate(LocalDateTime.now());
         order.setShippingAddress(requestDto.shippingAddress());
@@ -129,43 +133,34 @@ public class OrderServiceImpl implements OrderService {
                 .filter(item -> item.getId().equals(id))
                 .findFirst()
                 .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                MISSING_ORDER_ITEM_MESSAGE + id
-                        )
+                        () -> new EntityNotFoundException(MISSING_ORDER_ITEM_MESSAGE + id)
                 );
         return orderItemMapper.toDto(orderItem);
     }
 
     private Order getOrderFromId(Long orderId) {
-        Order order = orderRepository.findById(orderId)
+        return orderRepository.findById(orderId)
                 .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                MISSING_ORDER_MESSAGE + orderId)
+                        () -> new EntityNotFoundException(MISSING_ORDER_MESSAGE + orderId)
                 );
-        return order;
     }
 
     @Override
-    public OrderDto updateStatus(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(MISSING_ORDER_MESSAGE + id)
-                );
+    public OrderDto updateStatus(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
         switch (order.getStatus()) {
-            case PENDING:
-                order.setStatus(Status.DELIVERED);
+            case ORDER_PENDING:
+                order.setStatus(BOOK_DELIVERED);
                 break;
-            case DELIVERED:
-                order.setStatus(Status.COMPLETED);
+            case BOOK_DELIVERED:
+                order.setStatus(ORDER_COMPLETED);
                 break;
             default:
-                order.setDeleted(true);
-                break;
+                throw new IllegalStateException("Cannot update status further");
         }
-        return saveAndMapToDto(order);
-    }
 
-    private OrderDto saveAndMapToDto(Order order) {
         return orderMapper.toDto(orderRepository.save(order));
     }
 }

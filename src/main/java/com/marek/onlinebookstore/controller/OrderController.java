@@ -13,9 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +27,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Make Order",
             description = "make order for user with your shipping address")
     public OrderDto makeOrder(@RequestBody @Valid PlacingOrderRequestDto requestDto) {
@@ -35,7 +35,7 @@ public class OrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "get order history",
             description = "get your all orders")
     public List<OrderDto> getOrderHistory(Authentication authentication, Pageable pageable) {
@@ -44,7 +44,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/items")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "get all items",
             description = "get all items from your order")
     public List<OrderItemDto> getItemsFromOrder(@PathVariable Long orderId) {
@@ -52,19 +52,18 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}/items/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "get one item",
             description = "get one item from your order")
     public OrderItemDto getOneItemFromOrder(@PathVariable Long orderId, @PathVariable Long id) {
         return orderService.getFromOrder(orderId, id);
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "update order status",
             description = "change status for your order")
     public OrderDto updateOrderStatus(@PathVariable Long id) {
         return orderService.updateStatus(id);
     }
 }
-

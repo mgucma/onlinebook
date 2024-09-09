@@ -9,6 +9,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class, uses = {CartItemMapper.class, BookMapper.class})
 public interface OrderItemMapper {
+
+    @Mapping(target = "book", source = "cartItem.book")
+    @Mapping(target = "quantity", source = "cartItem.quantity")
+    @Mapping(target = "price", ignore = true)
+    @Mapping(target = "id", ignore = true)
     OrderItem fromCarttoOrderItem(CartItem cartItem);
 
     @Mapping(target = "bookId", source = "book.id")
