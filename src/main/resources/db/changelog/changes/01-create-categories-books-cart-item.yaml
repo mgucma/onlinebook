@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-categories-books-cart-item
+      author: mg
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column:
+                  name: name
+                  value: test
+              - column:
+                  name: description
+                  value: okok
+
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: title
+                  value: title
+              - column:
+                  name: author
+                  value: mg
+              - column:
+                  name: isbn
+                  value: 12345
+              - column:
+                  name: price
+                  value: 12
+              - column:
+                  name: description
+                  value: okok
+              - column:
+                  name: cover_image
+                  value: okok
+
+        - insert:
+            tableName: books_categories
+            columns:
+              - column:
+                  name: books_id
+                  value: 1
+              - column:
+                  name: categories_id
+                  value: 1
+        - insert:
+            tableName: cart_items
+            columns:
+              - column:
+                  name: cart_id
+                  value: 1
+              - column:
+                  name: books_id
+                  value: 1
+              - column:
+                  name: quantity
+                  value: 1
