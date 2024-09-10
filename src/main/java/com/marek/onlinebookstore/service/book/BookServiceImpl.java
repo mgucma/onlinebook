@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -71,16 +72,17 @@ public class BookServiceImpl implements BookService {
     public List<BookDto> searchBooks(BookSearchParametersDto searchParameters, Pageable pageable) {
         Specification<Book> bookSpecification = bookSpecificationBuilder.build(searchParameters);
         return bookRepository.findAll(bookSpecification, pageable)
-                .stream().map(bookMapping::toDto).toList(); // Zwracamy List<BookDto>
+                .stream().map(bookMapping::toDto).toList();
     }
 
     @Override
     public List<BookDtoWithoutCategoryIds> findByCategoryId(Long id, Pageable pageable) {
-        List<Book> allByCategoriesId = bookRepository.findAllByCategoriesId(id, pageable);
-        if (allByCategoriesId.isEmpty()) {
+        Page<Book> booksPage = bookRepository.findAllByCategoryId(id, pageable);
+        List<Book> allByCategoryId = booksPage.getContent();
+        if (allByCategoryId.isEmpty()) {
             throw new EntityNotFoundException("Can't find books with category id: " + id);
         }
-        return allByCategoriesId.stream()
+        return allByCategoryId.stream()
                 .map(bookMapping::toDtoWithoutCategoryIds)
                 .toList();
     }

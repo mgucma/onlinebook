@@ -247,7 +247,8 @@ class BookServiceImplTest {
         BookDtoWithoutCategoryIds bookDtoWithoutCategoryIdsFromBook =
                 getBookDtoWithoutCategoryIdsFromBook(book);
 
-        when(bookRepository.findAllByCategoriesId(CATEGORY_ID, pageable)).thenReturn(bookList);
+        when(bookRepository.findAllByCategoryId(CATEGORY_ID, pageable)).thenReturn(new
+                PageImpl<>(bookList));
         when(bookMapping.toDtoWithoutCategoryIds(book)).thenReturn(
                 bookDtoWithoutCategoryIdsFromBook
         );
@@ -256,7 +257,7 @@ class BookServiceImplTest {
         Assertions.assertEquals(bookDtoWithoutCategoryIdsFromBook, byCategoryId.get(0));
 
         verify(bookRepository, times(1))
-                .findAllByCategoriesId(CATEGORY_ID, pageable);
+                .findAllByCategoryId(CATEGORY_ID, pageable);
         verify(bookMapping, times(1)).toDtoWithoutCategoryIds(book);
         verifyNoMoreInteractions(bookRepository, bookMapping);
     }
@@ -269,13 +270,13 @@ class BookServiceImplTest {
 
         List<Book> bookList = List.of();
 
-        when(bookRepository.findAllByCategoriesId(categoryId, pageable))
-                .thenReturn(bookList);
+        when(bookRepository.findAllByCategoryId(categoryId, pageable))
+                .thenReturn(new PageImpl<>(bookList));
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> bookService.findByCategoryId(categoryId, pageable));
         Assertions.assertEquals("Can't find books with category id: " + categoryId,
                 exception.getMessage());
-        verify(bookRepository, times(1)).findAllByCategoriesId(categoryId, pageable);
+        verify(bookRepository, times(1)).findAllByCategoryId(categoryId, pageable);
         verifyNoMoreInteractions(bookRepository);
     }
 
