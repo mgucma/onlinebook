@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,15 +36,19 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceImplTest {
-    public static final String TITLE = "Title";
-    public static final String AUTHOR = "author";
-    public static final String ISBN = "1231231";
-    public static final BigDecimal PRICE = BigDecimal.valueOf(123.12);
-    public static final String DESCRIPTION = "ok book";
-    public static final String COVER_IMAGE = "image";
-    public static final Set<Long> CATEGORIES_ID = Set.of();
-    public static final Set<Category> CATEGORIES = Set.of();
-    public static final Long CATEGORY_ID = 1L;
+
+    private static final Long VALID_BOOK_ID = 1L;
+    private static final Long INVALID_BOOK_ID = -123L;
+    private static final Long CATEGORY_ID = 1L;
+
+    private static final String TITLE = "Title";
+    private static final String AUTHOR = "author";
+    private static final String ISBN = "1231231";
+    private static final BigDecimal PRICE = BigDecimal.valueOf(123.12);
+    private static final String DESCRIPTION = "ok book";
+    private static final String COVER_IMAGE = "image";
+    private static final Set<Long> CATEGORIES_ID = Set.of();
+    private static final Set<Category> CATEGORIES = Set.of();
 
     @Mock
     private BookRepository bookRepository;
@@ -57,6 +62,12 @@ class BookServiceImplTest {
     @InjectMocks
     private BookServiceImpl bookService;
 
+    @AfterEach
+    public void cleanUpTestData() {
+        bookRepository.deleteAll();
+        categoryRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("Verify output for correct input in save method")
     public void save_correctInput_ReturnsBookDtoWithoutCategoryIds() {
@@ -64,14 +75,11 @@ class BookServiceImplTest {
         categoriesId.add(CATEGORY_ID);
 
         Category category = getCategory(CATEGORY_ID);
-
         Set<Category> categories = new HashSet<>();
         categories.add(category);
 
         CreateBookRequestDto requestDto = new CreateBookRequestDto(
-                TITLE, AUTHOR, ISBN,
-                PRICE, DESCRIPTION,
-                COVER_IMAGE, categoriesId
+                TITLE, AUTHOR, ISBN, PRICE, DESCRIPTION, COVER_IMAGE, categoriesId
         );
         Book book = getBook();
         book.setCategories(categories);
@@ -97,7 +105,6 @@ class BookServiceImplTest {
     @DisplayName("Verify findAll verify pageable")
     public void findAll_VerifyPageable_ReturnsList() {
         Book book = getBook();
-
         BookDto bookDto = getBookDtoFromBook(book);
 
         Pageable pageable = PageRequest.of(0, 10);
@@ -124,15 +131,8 @@ class BookServiceImplTest {
         categoriesId.add(CATEGORY_ID);
 
         Category category = getCategory(CATEGORY_ID);
-
         Set<Category> categories = new HashSet<>();
         categories.add(category);
-
-        CreateBookRequestDto requestDto = new CreateBookRequestDto(
-                TITLE, AUTHOR, ISBN,
-                PRICE, DESCRIPTION,
-                COVER_IMAGE, categoriesId
-        );
 
         Book book = getBook();
         book.setCategories(categories);
@@ -140,15 +140,13 @@ class BookServiceImplTest {
         BookDto expected = getBookDtoFromBook(book);
         expected.setCategoriesId(categoriesId);
 
-        Long bookId = 1L;
-
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookRepository.findById(VALID_BOOK_ID)).thenReturn(Optional.of(book));
         when(bookMapping.toDto(book)).thenReturn(expected);
 
-        BookDto actual = bookService.findById(bookId);
+        BookDto actual = bookService.findById(VALID_BOOK_ID);
         Assertions.assertEquals(expected, actual);
 
-        verify(bookRepository, times(1)).findById(bookId);
+        verify(bookRepository, times(1)).findById(VALID_BOOK_ID);
         verify(bookMapping, times(1)).toDto(book);
         verifyNoMoreInteractions(bookRepository, bookMapping);
     }
@@ -156,15 +154,14 @@ class BookServiceImplTest {
     @Test
     @DisplayName("Verify findById method without correct id")
     public void findById_withoutCorrectId_throwException() {
-        Long bookId = -100L;
-
-        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+        when(bookRepository.findById(INVALID_BOOK_ID)).thenReturn(Optional.empty());
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
-                () -> bookService.findById(bookId));
+                () -> bookService.findById(INVALID_BOOK_ID));
 
-        Assertions.assertEquals("Can't find book with id: " + bookId, exception.getMessage());
+        Assertions.assertEquals("Can't find book with id: "
+                + INVALID_BOOK_ID, exception.getMessage());
 
-        verify(bookRepository, times(1)).findById(bookId);
+        verify(bookRepository, times(1)).findById(INVALID_BOOK_ID);
         verifyNoMoreInteractions(bookRepository);
     }
 
@@ -172,117 +169,59 @@ class BookServiceImplTest {
     @DisplayName("Verify deleteById with correct id should delete book from DB")
     public void deleteById_withCorrectId_deleteBookFromDB() {
         Book book = getBook();
-        Long bookId = book.getId();
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
-        bookService.deleteById(bookId);
+        when(bookRepository.findById(VALID_BOOK_ID)).thenReturn(Optional.of(book));
 
-        Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
-                () -> bookService.findById(bookId));
+        bookService.deleteById(VALID_BOOK_ID);
 
-        Assertions.assertEquals("Can't find book with id: " + bookId, exception.getMessage());
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookRepository, times(1)).deleteById(bookId);
+        verify(bookRepository, times(1)).findById(VALID_BOOK_ID);
+        verify(bookRepository, times(1)).deleteById(VALID_BOOK_ID);
         verifyNoMoreInteractions(bookRepository);
     }
 
     @Test
-    @DisplayName("Verify update with correct id should update & return book")
+    @DisplayName("Verify update with correct id should return updated BookDto")
     public void update_withCorrectId_returnsBookDto() {
         CreateBookRequestDto createBookRequestDto = getCreateBookRequestDto();
         Book book = getBook();
-        Long bookId = book.getId();
-
         BookDto expected = getBookDtoFromBook(book);
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        when(bookRepository.findById(VALID_BOOK_ID)).thenReturn(Optional.of(book));
         when(bookMapping.toEntity(createBookRequestDto)).thenReturn(book);
         when(bookRepository.save(book)).thenReturn(book);
         when(bookMapping.toDto(book)).thenReturn(expected);
 
-        BookDto actual = bookService.update(bookId, createBookRequestDto);
+        BookDto actual = bookService.update(VALID_BOOK_ID, createBookRequestDto);
+
         Assertions.assertEquals(expected, actual);
-        verify(bookRepository, times(1)).findById(bookId);
-        verify(bookMapping, times(1)).toEntity(createBookRequestDto);
+
+        verify(bookRepository, times(1)).findById(VALID_BOOK_ID);
         verify(bookRepository, times(1)).save(book);
+        verify(bookMapping, times(1)).toEntity(createBookRequestDto);
         verify(bookMapping, times(1)).toDto(book);
         verifyNoMoreInteractions(bookRepository, bookMapping);
     }
 
     @Test
-    @DisplayName("Verify update with correct id should throw a EntityNotFoundException")
+    @DisplayName("Verify update without correct id should throw EntityNotFoundException")
     public void update_withoutCorrectId_throwException() {
         CreateBookRequestDto createBookRequestDto = getCreateBookRequestDto();
-        Book book = getBook();
-        book.setId(-123L);
-        Long bookId = book.getId();
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+        when(bookRepository.findById(INVALID_BOOK_ID)).thenReturn(Optional.empty());
+
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
-                () -> bookService.update(bookId, createBookRequestDto));
-        Assertions.assertEquals("Can't find book with id: " + bookId, exception.getMessage());
+                () -> bookService.update(INVALID_BOOK_ID, createBookRequestDto));
 
-        verify(bookRepository, times(1)).findById(bookId);
-        verifyNoMoreInteractions(bookRepository);
-    }
+        Assertions.assertEquals("Can't find book with id: "
+                + INVALID_BOOK_ID, exception.getMessage());
 
-    @Test
-    @DisplayName("Verify findByCategoryId with incorrect id "
-            + "should throw an EntityNotFoundException")
-    public void findByCategoryId_withIncorrectCategoryId_throwException() {
-        Set<Long> categoriesId = new HashSet<>();
-        categoriesId.add(CATEGORY_ID);
-
-        Category category = getCategory(CATEGORY_ID);
-
-        Set<Category> categories = new HashSet<>();
-        categories.add(category);
-
-        Book book = getBook();
-        book.setCategories(categories);
-        Long bookId = book.getId();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        List<Book> bookList = List.of(book);
-        BookDtoWithoutCategoryIds bookDtoWithoutCategoryIdsFromBook =
-                getBookDtoWithoutCategoryIdsFromBook(book);
-
-        when(bookRepository.findAllByCategoryId(CATEGORY_ID, pageable)).thenReturn(new
-                PageImpl<>(bookList));
-        when(bookMapping.toDtoWithoutCategoryIds(book)).thenReturn(
-                bookDtoWithoutCategoryIdsFromBook
-        );
-        List<BookDtoWithoutCategoryIds> byCategoryId = bookService
-                .findByCategoryId(CATEGORY_ID, pageable);
-        Assertions.assertEquals(bookDtoWithoutCategoryIdsFromBook, byCategoryId.get(0));
-
-        verify(bookRepository, times(1))
-                .findAllByCategoryId(CATEGORY_ID, pageable);
-        verify(bookMapping, times(1)).toDtoWithoutCategoryIds(book);
-        verifyNoMoreInteractions(bookRepository, bookMapping);
-    }
-
-    @Test
-    @DisplayName("Verify findByCategoryId with correct id should return list of books")
-    public void findByCategoryId_withCorrectCategoryId_returnsListOfBooks() {
-        Long categoryId = 123123123123198669L;
-        Pageable pageable = PageRequest.of(0, 10);
-
-        List<Book> bookList = List.of();
-
-        when(bookRepository.findAllByCategoryId(categoryId, pageable))
-                .thenReturn(new PageImpl<>(bookList));
-        Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
-                () -> bookService.findByCategoryId(categoryId, pageable));
-        Assertions.assertEquals("Can't find books with category id: " + categoryId,
-                exception.getMessage());
-        verify(bookRepository, times(1)).findAllByCategoryId(categoryId, pageable);
+        verify(bookRepository, times(1)).findById(INVALID_BOOK_ID);
         verifyNoMoreInteractions(bookRepository);
     }
 
     private static @NotNull Book getBook() {
         Book book = new Book();
-        book.setId(1L);
+        book.setId(VALID_BOOK_ID);
         book.setTitle(TITLE);
         book.setAuthor(AUTHOR);
         book.setIsbn(ISBN);

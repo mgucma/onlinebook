@@ -11,7 +11,6 @@ import com.marek.onlinebookstore.repository.book.BookRepository;
 import com.marek.onlinebookstore.repository.book.BookSpecificationBuilder;
 import com.marek.onlinebookstore.repository.category.CategoryRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,11 +29,12 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDtoWithoutCategoryIds save(CreateBookRequestDto createBookRequestDto) {
         Book book = bookMapping.toEntity(createBookRequestDto);
-        book.setCategories(createBookRequestDto.categoriesId().stream()
-                .map(categoryRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet())
+        book.setCategories(
+                createBookRequestDto.categoriesId().stream()
+                        .map(categoryId -> categoryRepository.findById(categoryId)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                        "Category not found with id: " + categoryId)))
+                        .collect(Collectors.toSet())
         );
         return bookMapping.toDtoWithoutCategoryIds(bookRepository.save(book));
     }
@@ -49,23 +49,35 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto findById(Long id) {
         return bookMapping.toDto(
-                bookRepository.findById(id).orElseThrow(
-                        () -> new EntityNotFoundException("Can't find book with id: " + id)));
+                bookRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Can't find book with id: "
+                                + id)));
     }
 
     @Override
     public void deleteById(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find book with id: " + id));
         bookRepository.deleteById(id);
     }
 
     @Override
     public BookDto update(Long id, CreateBookRequestDto createBookRequestDto) {
-        if (!bookRepository.findById(id).isPresent()) {
-            throw new EntityNotFoundException("Can't find book with id: " + id);
-        }
-        Book book = bookMapping.toEntity(createBookRequestDto);
-        book.setId(id);
-        return bookMapping.toDto(bookRepository.save(book));
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Can't find book with id: " + id));
+
+        Book updatedBook = bookMapping.toEntity(createBookRequestDto);
+        updatedBook.setId(id);
+        updatedBook.setCategories(
+                createBookRequestDto.categoriesId().stream()
+                        .map(categoryId -> categoryRepository.findById(categoryId)
+                                .orElseThrow(() ->
+                                        new EntityNotFoundException("Category not found with id: "
+                                        + categoryId)))
+                        .collect(Collectors.toSet())
+        );
+
+        return bookMapping.toDto(bookRepository.save(updatedBook));
     }
 
     @Override
@@ -78,11 +90,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookDtoWithoutCategoryIds> findByCategoryId(Long id, Pageable pageable) {
         Page<Book> booksPage = bookRepository.findAllByCategoryId(id, pageable);
-        List<Book> allByCategoryId = booksPage.getContent();
-        if (allByCategoryId.isEmpty()) {
+        if (!booksPage.hasContent()) {
             throw new EntityNotFoundException("Can't find books with category id: " + id);
         }
-        return allByCategoryId.stream()
+        return booksPage.stream()
                 .map(bookMapping::toDtoWithoutCategoryIds)
                 .toList();
     }

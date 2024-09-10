@@ -40,6 +40,7 @@ import org.testcontainers.shaded.org.apache.commons.lang3.builder.EqualsBuilder;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookControllerTest {
+
     public static final String TITLE = "Title";
     public static final String AUTHOR = "author";
     public static final String ISBN = "1231231";
@@ -56,9 +57,7 @@ class BookControllerTest {
     private BookService bookService;
 
     @BeforeAll
-    static void beforeAll(
-            @Autowired WebApplicationContext applicationContext
-    ) {
+    static void beforeAll(@Autowired WebApplicationContext applicationContext) {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(applicationContext)
                 .apply(springSecurity())
@@ -66,9 +65,7 @@ class BookControllerTest {
     }
 
     @AfterAll
-    static void afterAll(
-            @Autowired DataSource dataSource
-    ) {
+    static void afterAll(@Autowired DataSource dataSource) {
         teardown(dataSource);
     }
 
@@ -86,30 +83,30 @@ class BookControllerTest {
     @WithMockUser(username = "user", roles = {"ADMIN"})
     @Test
     public void createBook_ValidCreateBookRequestDto_Success() throws Exception {
-        //Given
         CreateBookRequestDto createBookRequestDto = getCreateBookRequestDto();
         Book book = getBook();
         BookDtoWithoutCategoryIds expected = getBookDtoWithoutCategoryIdsFromBook(book);
 
         String jsonRequest = objectMapper.writeValueAsString(createBookRequestDto);
-        //When
+
         MvcResult result = mockMvc.perform(
                         post("/books")
                                 .content(jsonRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
-        //Then
+
         BookDtoWithoutCategoryIds actual = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
                 BookDtoWithoutCategoryIds.class
         );
-        Assertions.assertAll(() -> Assertions.assertNotNull(actual),
+
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(actual),
                 () -> Assertions.assertNotNull(actual.id()),
                 () -> Assertions.assertEquals(expected.title(), actual.title()),
                 () -> Assertions.assertEquals(expected.author(), actual.author()),
-                () -> Assertions.assertEquals(expected.isbn(), actual.isbn()),
                 () -> Assertions.assertEquals(expected.isbn(), actual.isbn()),
                 () -> Assertions.assertEquals(expected.price(), actual.price()),
                 () -> Assertions.assertEquals(expected.description(), actual.description()),
@@ -122,29 +119,29 @@ class BookControllerTest {
     @WithMockUser(username = "user", roles = {"ADMIN"})
     @Test
     public void createBook_ValidCreateBookRequestDto_Fail() throws Exception {
-        //Given
         CreateBookRequestDto createBookRequestDto = null;
 
         String jsonRequest = objectMapper.writeValueAsString(createBookRequestDto);
-        //When
-        MvcResult result = mockMvc.perform(
+
+        mockMvc.perform(
                         post("/books")
                                 .content(jsonRequest)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
+
         Exception exception = Assertions.assertThrows(NullPointerException.class,
                 () -> bookService.save(createBookRequestDto));
-        //Then
+
         Assertions.assertNotNull(exception);
     }
 
     @WithMockUser(username = "user", roles = "USER")
     @Test
-
     public void getAll_ValidGetAllRequestDto_Success() throws Exception {
         Pageable pageable = PageRequest.of(0, 10);
+
         MvcResult result = mockMvc.perform(get("/books")
                         .param("page", "0")
                         .param("size", "10")
@@ -156,6 +153,7 @@ class BookControllerTest {
                 result.getResponse().getContentAsString(),
                 objectMapper.getTypeFactory()
                         .constructCollectionType(List.class, BookDto.class));
+
         Assertions.assertNotNull(bookDtoList);
     }
 
@@ -220,19 +218,17 @@ class BookControllerTest {
 
     private static
             @NotNull BookDtoWithoutCategoryIds getBookDtoWithoutCategoryIdsFromBook(Book book) {
-        BookDtoWithoutCategoryIds withoutCategoryIds = new BookDtoWithoutCategoryIds(
+        return new BookDtoWithoutCategoryIds(
                 book.getId(), book.getTitle(), book.getAuthor(),
                 book.getIsbn(), book.getPrice(), book.getDescription(),
                 book.getCoverImage()
         );
-        return withoutCategoryIds;
     }
 
     private static @NotNull CreateBookRequestDto getCreateBookRequestDto() {
-        CreateBookRequestDto createBookRequestDto = new CreateBookRequestDto(
+        return new CreateBookRequestDto(
                 TITLE, AUTHOR, ISBN, PRICE, DESCRIPTION, COVER_IMAGE, CATEGORIES_ID
         );
-        return createBookRequestDto;
     }
 
 }

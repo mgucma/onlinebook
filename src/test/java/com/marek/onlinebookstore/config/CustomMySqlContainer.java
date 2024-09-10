@@ -3,7 +3,7 @@ package com.marek.onlinebookstore.config;
 import org.testcontainers.containers.MySQLContainer;
 
 public class CustomMySqlContainer extends MySQLContainer<CustomMySqlContainer> {
-    public static final String DB_IMAGE = "mysql:8.4.0";
+    public static final String DB_IMAGE = "mysql:8.0.32";
 
     private static CustomMySqlContainer mySqlContainer;
 
