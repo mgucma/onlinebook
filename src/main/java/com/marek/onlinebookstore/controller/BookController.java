@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,48 +34,65 @@ public class BookController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Get all books", description = "get a list of all available books")
-    public List<BookDto> getAll(Pageable pageable) {
-        return bookService.findAll(pageable);
+    public ResponseEntity<List<BookDto>> getAll(Pageable pageable) {
+        List<BookDto> books = bookService.findAll(pageable);
+        return ResponseEntity.ok(books);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Get a book by id", description = "get book with your id")
-    public BookDto getBookById(@PathVariable Long id) {
-        return bookService.findById(id);
+    public ResponseEntity<BookDto> getBookById(@PathVariable Long id) {
+        try {
+            BookDto book = bookService.findById(id);
+            return ResponseEntity.ok(book);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Create book", description = "create new book")
-    public BookDtoWithoutCategoryIds createBook(@RequestBody @Valid
-                                                CreateBookRequestDto createBookRequestDto) {
-        return bookService.save(createBookRequestDto);
+    public ResponseEntity<BookDtoWithoutCategoryIds> createBook(
+            @RequestBody @Valid CreateBookRequestDto createBookRequestDto) {
+        BookDtoWithoutCategoryIds createdBook = bookService.save(createBookRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Update book", description = "update book with your id")
-    public BookDto updateBookById(@PathVariable Long id, @RequestBody @Valid CreateBookRequestDto
-            createBookRequestDto) {
-        return bookService.update(id, createBookRequestDto);
+    public ResponseEntity<BookDto> updateBookById(
+            @PathVariable Long id,
+            @RequestBody @Valid CreateBookRequestDto createBookRequestDto) {
+        try {
+            BookDto updatedBook = bookService.update(id, createBookRequestDto);
+            return ResponseEntity.ok(updatedBook);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    @Operation(summary = "Search Books", description = "search book with your parameters =>"
-            + " title, author, isbn"
-            + "|| remember to delete square brackets in searchParameters "
-            + "and \"sort\":\"string\" in pageable")
-    public List<BookDto> searchBooks(BookSearchParametersDto searchParameters, Pageable pageable) {
-        return bookService.searchBooks(searchParameters, pageable);
+    @Operation(summary = "Search Books", description = "search book with your parameters")
+    public ResponseEntity<List<BookDto>> searchBooks(
+            BookSearchParametersDto searchParameters, Pageable pageable) {
+        List<BookDto> books = bookService.searchBooks(searchParameters, pageable);
+        return ResponseEntity.ok(books);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete book", description = "delete book with your id")
-    public void delete(@PathVariable Long id) {
-        bookService.deleteById(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        try {
+            bookService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
