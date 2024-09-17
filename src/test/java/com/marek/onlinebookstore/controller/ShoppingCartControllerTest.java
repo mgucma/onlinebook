@@ -39,9 +39,9 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ShoppingCartControllerTest {
     public static final int QUANTITY = 1;
-    private static final String EMAIL = "okok@email.com";
+    private static final String EMAIL = "costam@email.com";
     private static final String PASSWORD =
-            "$2a$10$EhBFr.PagMjT0P0EYqRL/.KjPUA2vRSutGZo92Xr9Hh/JwwAJq/vi";//password
+            "$2b$12$YTnxUtW6bzr0uqVdqP03F.6SIxrtXWZ8a0jF7ZB9tFiC8byuIl6B.";
     private static final String FIRST_NAME = "First Name";
     private static final String LAST_NAME = "Last Name";
     private static final String SHIPPING_ADDRESS = "address";
@@ -78,19 +78,20 @@ class ShoppingCartControllerTest {
             connection.setAutoCommit(true);
             ScriptUtils.executeSqlScript(
                     connection,
-                    new ClassPathResource("db/cart/controller/delete-carts.sql")
+                    new ClassPathResource("db/cart/controller/cleanup-data-for-cart-test.sql")
             );
         }
     }
 
     @Test
-    @DisplayName("""
-            Update item in cart with valid input returns CartItemDto
-            """)
+    @DisplayName("Should update item in cart with valid input and return CartItemDto")
     @WithMockUser(username = "user", roles = "USER")
     @SneakyThrows
-    @Sql("classpath:db/cart/controller/add-data-for-cart-test.sql")
-    void updateItemCart_Success() {
+    @Sql(scripts = "classpath:db/cart/controller/add-data-for-cart-test.sql",
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "classpath:db/cart/controller/cleanup-data-for-cart-test.sql",
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void shouldUpdateItemInCartWithValidInputAndReturnCartItemDto() {
         //Given
         long quantity = QUANTITY + 1;
         CartItemUpdatedDto cartItemUpdateDto = getCartItemUpdateDto((int) quantity);
@@ -117,12 +118,10 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("""
-            Delete item from cart with valid input
-            """)
+    @DisplayName("Should delete item from cart with valid input")
     @WithMockUser(username = "user", roles = "USER")
     @SneakyThrows
-    void deleteItemFromCart_Success() {
+    void shouldDeleteItemFromCartWithValidInput() {
         CartItem cartItem = getCartItem(getShoppingCart(getUser()), getBook());
         cartItem.setId(2L);
         Long cartItemId = cartItem.getId();

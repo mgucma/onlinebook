@@ -8,7 +8,7 @@ insert into books_categories(books_id, categories_id)
 values(2, 1);
 
 INSERT INTO users (email, password, first_name, last_name, shipping_address, is_deleted)
-VALUES ('costam@email.com', '$2a$10$EhBFr.PagMjT0P0EYqRL/.KjPUA2vRSutGZo92Xr9Hh/JwwAJq/vi'
+VALUES ('costam@email.com', '$2b$12$YTnxUtW6bzr0uqVdqP03F.6SIxrtXWZ8a0jF7ZB9tFiC8byuIl6B.'
        ,'First Name', 'Last Name', 'address', false);
 SET @user_id = LAST_INSERT_ID();
 

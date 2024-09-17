@@ -19,12 +19,13 @@ import org.springframework.test.context.jdbc.Sql;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ShoppingCartRepositoryTest {
+
     @Autowired
     private ShoppingCartRepository shoppingCartRepository;
 
     @Test
     @DisplayName("""
-            Should return the ShoppingCart associated with the User having ID 2
+            Should return the ShoppingCart associated with the User having ID 1
             """)
     @Sql(scripts = {"classpath:db/cart/repository/delete_existing_carts.sql",
             "classpath:db/cart/repository/add_shopping_cart_with_necessities.sql"},
@@ -34,16 +35,26 @@ class ShoppingCartRepositoryTest {
     void findShoppingCartByUser_UserWithIdEqualOne_returnsShoppingCart() {
         Long userId = 1L;
         ShoppingCart testShoppingCart = getTestShoppingCart();
-        ShoppingCart actual = shoppingCartRepository
-                .findShoppingCartByUser(userId);
+        ShoppingCart actual = shoppingCartRepository.findShoppingCartByUser(userId);
 
-        Assertions.assertEquals(testShoppingCart.getId(),
-                actual.getId());
+        Assertions.assertEquals(testShoppingCart.getId(), actual.getId());
         Assertions.assertEquals(testShoppingCart.getUser().getEmail(),
                 actual.getUser().getEmail());
-        Assertions.assertEquals(
-                takeItemsAndGetString(testShoppingCart),
+        Assertions.assertEquals(takeItemsAndGetString(testShoppingCart),
                 takeItemsAndGetString(actual));
+    }
+
+    @Test
+    @DisplayName("Should return null for an invalid User ID")
+    @Sql(scripts = {"classpath:db/cart/repository/delete_existing_carts.sql"},
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"classpath:db/cart/repository/delete_existing_carts.sql"},
+            executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void findShoppingCartByInvalidUserId_returnsNull() {
+        Long invalidUserId = 999L;
+        ShoppingCart actual = shoppingCartRepository.findShoppingCartByUser(invalidUserId);
+
+        Assertions.assertNull(actual, "Expected null when user ID is invalid");
     }
 
     private String takeItemsAndGetString(ShoppingCart testShoppingCart) {
