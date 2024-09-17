@@ -29,7 +29,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ShoppingCartDto findUserCart(User user) {
         return shoppingCartMapper.toDto(shoppingCartRepository
-                .findShoppingCartByUser(user));
+                .findShoppingCartByUser(user.getId()));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         CartItem item = cartItemMapper.toModel(cartItemRequestDto);
         item.setBook(bookRepository.findById(item.getBook().getId())
                 .orElseThrow(EntityNotFoundException::new));
-        ShoppingCart cart = shoppingCartRepository.findShoppingCartByUser(user);
+        ShoppingCart cart = shoppingCartRepository.findShoppingCartByUser(user.getId());
         item.setShoppingCart(cart);
         Set<CartItem> cartItems = cart.getCartItems();
         cartItems.add(item);

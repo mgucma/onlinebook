@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import javax.sql.DataSource;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -180,7 +179,7 @@ class BookControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    private static @NotNull Book getBook() {
+    private static Book getBook() {
         Book book = new Book();
         book.setId(1L);
         book.setTitle(TITLE);
@@ -194,7 +193,7 @@ class BookControllerTest {
         return book;
     }
 
-    private static @NotNull Category getCategory(Long categoryId) {
+    private static Category getCategory(Long categoryId) {
         Category category = new Category();
         category.setId(categoryId);
         category.setName("category");
@@ -203,7 +202,7 @@ class BookControllerTest {
         return category;
     }
 
-    private static @NotNull BookDto getBookDtoFromBook(Book book) {
+    private static BookDto getBookDtoFromBook(Book book) {
         BookDto bookDto = new BookDto();
         bookDto.setCategoriesId(Set.of());
         bookDto.setTitle(book.getTitle());
@@ -217,7 +216,7 @@ class BookControllerTest {
     }
 
     private static
-            @NotNull BookDtoWithoutCategoryIds getBookDtoWithoutCategoryIdsFromBook(Book book) {
+             BookDtoWithoutCategoryIds getBookDtoWithoutCategoryIdsFromBook(Book book) {
         return new BookDtoWithoutCategoryIds(
                 book.getId(), book.getTitle(), book.getAuthor(),
                 book.getIsbn(), book.getPrice(), book.getDescription(),
@@ -225,7 +224,7 @@ class BookControllerTest {
         );
     }
 
-    private static @NotNull CreateBookRequestDto getCreateBookRequestDto() {
+    private static CreateBookRequestDto getCreateBookRequestDto() {
         return new CreateBookRequestDto(
                 TITLE, AUTHOR, ISBN, PRICE, DESCRIPTION, COVER_IMAGE, CATEGORIES_ID
         );

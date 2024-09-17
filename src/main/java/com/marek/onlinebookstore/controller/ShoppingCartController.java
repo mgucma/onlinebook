@@ -50,6 +50,7 @@ public class ShoppingCartController {
         return shoppingCartService.addItem(principal, requestDto);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/cart-items/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @Operation(summary = "Update item",

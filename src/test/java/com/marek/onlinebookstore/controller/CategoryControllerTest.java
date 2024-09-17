@@ -2,7 +2,6 @@ package com.marek.onlinebookstore.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -16,7 +15,6 @@ import com.marek.onlinebookstore.service.book.BookService;
 import com.marek.onlinebookstore.service.category.CategoryService;
 import java.math.BigDecimal;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,12 +52,10 @@ class CategoryControllerTest {
 
         CategoryDto actualCategory = categoryController.createCategory(requestDto);
 
-        assertAll(
-                () -> assertNotNull(actualCategory),
-                () -> assertEquals(expectedCategory.id(), actualCategory.id()),
-                () -> assertEquals(expectedCategory.name(), actualCategory.name()),
-                () -> assertEquals(expectedCategory.description(), actualCategory.description())
-        );
+        assertNotNull(actualCategory);
+        assertEquals(expectedCategory.id(), actualCategory.id());
+        assertEquals(expectedCategory.name(), actualCategory.name());
+        assertEquals(expectedCategory.description(), actualCategory.description());
     }
 
     @Test
@@ -144,7 +140,7 @@ class CategoryControllerTest {
         assertEquals(expectedBooks, actualBooks);
     }
 
-    private static @NotNull Category getCategory() {
+    private static Category getCategory() {
         Category category = new Category();
         category.setId(1L);
         category.setName(NAME);
@@ -153,11 +149,11 @@ class CategoryControllerTest {
         return category;
     }
 
-    private static @NotNull CreateCategoryRequestDto getCreateCategoryRequestDto() {
+    private static CreateCategoryRequestDto getCreateCategoryRequestDto() {
         return new CreateCategoryRequestDto(NAME, DESCRIPTION);
     }
 
-    private static @NotNull CategoryDto getCategoryDtoFromCategory(Category category) {
+    private static CategoryDto getCategoryDtoFromCategory(Category category) {
         return new CategoryDto(category.getId(), category.getName(), category.getDescription());
     }
 }
