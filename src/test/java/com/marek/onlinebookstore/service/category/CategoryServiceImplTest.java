@@ -13,7 +13,6 @@ import com.marek.onlinebookstore.model.Category;
 import com.marek.onlinebookstore.repository.category.CategoryRepository;
 import java.util.List;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,8 +40,9 @@ class CategoryServiceImplTest {
     private CategoryServiceImpl categoryService;
 
     @Test
-    @DisplayName("Verify findAll verify pageable")
+    @DisplayName("Find all categories with pagination - verify pageable")
     public void findAll_VerifyPageable_ReturnsList() {
+        // Given
         Category category = getCategory();
         List<Category> categories = List.of(category);
         CategoryDto expected = getCategoryDtoFromCategory(category);
@@ -53,8 +53,10 @@ class CategoryServiceImplTest {
         when(categoryRepository.findAll(pageable)).thenReturn(categoryPage);
         when(categoryMapper.toDto(category)).thenReturn(expected);
 
+        // When
         List<CategoryDto> actual = categoryService.findAll(pageable);
 
+        // Then
         Assertions.assertEquals(expected, actual.get(0));
         verify(categoryRepository, times(1)).findAll(pageable);
         verify(categoryMapper, times(1)).toDto(category);
@@ -62,8 +64,9 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Verify getById method with correct id should return")
+    @DisplayName("Get category by valid ID - returns CategoryDto")
     public void getById_withCorrectId_returnsCategoryDto() {
+        // Given
         Category category = getCategory();
         Long categoryId = category.getId();
         CategoryDto expected = getCategoryDtoFromCategory(category);
@@ -71,8 +74,10 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
         when(categoryMapper.toDto(category)).thenReturn(expected);
 
+        // When
         CategoryDto actual = categoryService.getById(categoryId);
 
+        // Then
         Assertions.assertEquals(expected, actual);
         verify(categoryRepository, times(1)).findById(categoryId);
         verify(categoryMapper, times(1)).toDto(category);
@@ -80,35 +85,41 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Verify getById method without id should throw EntityNotFoundException")
+    @DisplayName("Get category by invalid ID - throws EntityNotFoundException")
     public void getById_withoutCorrectId_throwException() {
+        // Given
         Long categoryId = -123L;
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
+        // When
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> categoryService.getById(categoryId));
 
-        Assertions.assertEquals("Category with id " + categoryId + " not found",
-                exception.getMessage());
+        // Then
+        Assertions.assertEquals("Category with id " + categoryId
+                + " not found", exception.getMessage());
         verify(categoryRepository, times(1)).findById(categoryId);
         verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test
-    @DisplayName("Verify save method with correct id should return CategoryDto")
+    @DisplayName("Save category with valid input - returns CategoryDto")
     public void save_correctInput_ReturnsCategoryDto() {
+        // Given
         CreateCategoryRequestDto requestDto = getCreateCategoryRequestDto();
         Category category = getCategory();
-        CategoryDto expected = getCategoryDtoFromCategory(category);
+        CategoryDto categoryDto = getCategoryDtoFromCategory(category);
 
         when(categoryMapper.toEntity(requestDto)).thenReturn(category);
         when(categoryRepository.save(category)).thenReturn(category);
-        when(categoryMapper.toDto(category)).thenReturn(expected);
+        when(categoryMapper.toDto(category)).thenReturn(categoryDto);
 
+        // When
         CategoryDto actual = categoryService.save(requestDto);
 
-        Assertions.assertEquals(expected, actual);
+        // Then
+        Assertions.assertEquals(categoryDto, actual);
         verify(categoryMapper, times(1)).toEntity(requestDto);
         verify(categoryRepository, times(1)).save(category);
         verify(categoryMapper, times(1)).toDto(category);
@@ -116,8 +127,9 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Verify update method with correct id should return CategoryDto")
+    @DisplayName("Update category by valid ID - returns updated CategoryDto")
     public void update_withCorrectId_returnsCategoryDto() {
+        // Given
         CreateCategoryRequestDto requestDto = new CreateCategoryRequestDto(NAME, DESCRIPTION);
         Category category = getCategory();
         Long categoryId = category.getId();
@@ -128,8 +140,10 @@ class CategoryServiceImplTest {
         when(categoryRepository.save(category)).thenReturn(category);
         when(categoryMapper.toDto(category)).thenReturn(expected);
 
+        // When
         CategoryDto actual = categoryService.update(categoryId, requestDto);
 
+        // Then
         Assertions.assertEquals(expected, actual);
         verify(categoryRepository, times(1)).findById(categoryId);
         verify(categoryMapper, times(1)).toEntity(requestDto);
@@ -139,43 +153,49 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Verify update method without correct id should throw EntityNotFoundException")
+    @DisplayName("Update category by invalid ID - throws EntityNotFoundException")
     public void update_withoutCorrectId_throwException() {
+        // Given
         CreateCategoryRequestDto requestDto = new CreateCategoryRequestDto(NAME, DESCRIPTION);
         Long categoryId = -123L;
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
+        // When
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> categoryService.update(categoryId, requestDto));
 
-        Assertions.assertEquals("Category with id " + categoryId + " not found",
-                exception.getMessage());
+        // Then
+        Assertions.assertEquals("Category with id " + categoryId
+                + " not found", exception.getMessage());
         verify(categoryRepository, times(1)).findById(categoryId);
         verifyNoMoreInteractions(categoryRepository);
     }
 
     @Test
-    @DisplayName("Verify delete method with correct id should delete Category from DB")
+    @DisplayName("Delete category by valid ID - category removed from DB")
     public void deleteById_withCorrectId_deleteCategoryFromDB() {
+        // Given
         Category category = getCategory();
         Long categoryId = category.getId();
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
 
+        // When
         categoryService.deleteById(categoryId);
 
         Exception exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> categoryService.getById(categoryId));
 
-        Assertions.assertEquals("Category with id " + categoryId + " not found",
-                exception.getMessage());
+        // Then
+        Assertions.assertEquals("Category with id " + categoryId
+                + " not found", exception.getMessage());
         verify(categoryRepository, times(1)).findById(categoryId);
         verify(categoryRepository, times(1)).deleteById(categoryId);
         verifyNoMoreInteractions(categoryRepository);
     }
 
-    private static @NotNull Category getCategory() {
+    private static Category getCategory() {
         Category category = new Category();
         category.setId(1L);
         category.setName(NAME);
@@ -184,11 +204,11 @@ class CategoryServiceImplTest {
         return category;
     }
 
-    private static @NotNull CreateCategoryRequestDto getCreateCategoryRequestDto() {
+    private static CreateCategoryRequestDto getCreateCategoryRequestDto() {
         return new CreateCategoryRequestDto(NAME, DESCRIPTION);
     }
 
-    private static @NotNull CategoryDto getCategoryDtoFromCategory(Category category) {
+    private static CategoryDto getCategoryDtoFromCategory(Category category) {
         return new CategoryDto(category.getId(), category.getName(), category.getDescription());
     }
 }
