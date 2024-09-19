@@ -28,15 +28,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto findUserCart(User user) {
-        return shoppingCartMapper.toDto(shoppingCartRepository
-                .findShoppingCartByUser(user.getId()));
+        validateUser(user);
+        return shoppingCartMapper.toDto(
+                shoppingCartRepository.findShoppingCartByUser(user.getId())
+        );
     }
 
     @Override
     public ShoppingCartDto addItem(User user, CartItemRequestDto cartItemRequestDto) {
+        validateUser(user);
         CartItem item = cartItemMapper.toModel(cartItemRequestDto);
-        item.setBook(bookRepository.findById(item.getBook().getId())
-                .orElseThrow(EntityNotFoundException::new));
+        item.setBook(
+                bookRepository.findById(item.getBook().getId())
+                        .orElseThrow(EntityNotFoundException::new)
+        );
         ShoppingCart cart = shoppingCartRepository.findShoppingCartByUser(user.getId());
         item.setShoppingCart(cart);
         Set<CartItem> cartItems = cart.getCartItems();
@@ -46,21 +51,23 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public CartItemDto updateItemQuantity(Long itemId,
-                                          CartItemUpdatedDto updatedDto) {
+    public CartItemDto updateItemQuantity(Long itemId, CartItemUpdatedDto updatedDto) {
         CartItem cartItem = cartItemRepository.findById(itemId).orElseThrow(
-                () -> new EntityNotFoundException("Item not found"
-                        + " with item id: " + itemId)
+                () -> new EntityNotFoundException("Item not found with item id: " + itemId)
         );
 
-        cartItem.setQuantity(
-                updatedDto.quantity()
-        );
+        cartItem.setQuantity(updatedDto.quantity());
         return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
     @Override
     public void deleteById(Long itemId) {
         cartItemRepository.deleteById(itemId);
+    }
+
+    private void validateUser(User user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User cannot be null or have a null ID");
+        }
     }
 }

@@ -16,6 +16,10 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookRepositoryTest {
 
+    private static final Long CATEGORY_ID = 1L;
+    private static final int PAGE_SIZE = 10;
+    private static final String EXPECTED_BOOK_TITLE = "Title";
+
     @Autowired
     private BookRepository bookRepository;
 
@@ -27,11 +31,10 @@ class BookRepositoryTest {
     @Sql(scripts = {"classpath:db/books/repository/remove-book-from-books-table.sql"},
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void findAllByCategoriesId_OneCategoryBook_returnOneBookInList() {
-        Long categoryId = 1L;
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, PAGE_SIZE);
 
-        Page<Book> actualPage = bookRepository.findAllByCategoryId(categoryId, pageable);
+        Page<Book> actualPage = bookRepository.findAllByCategoryId(CATEGORY_ID, pageable);
         Assertions.assertEquals(1, actualPage.getTotalElements());
-        Assertions.assertEquals("Title", actualPage.getContent().get(0).getTitle());
+        Assertions.assertEquals(EXPECTED_BOOK_TITLE, actualPage.getContent().get(0).getTitle());
     }
 }
