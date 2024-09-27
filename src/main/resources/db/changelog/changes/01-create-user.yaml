@@ -11,7 +11,7 @@ databaseChangeLog:
                   value: 1
               - column:
                   name: email
-                  value: admin@admin.com
+                  value: admin@simpleart.eu
               - column:
                   name: password
                   value: $2a$10$EhBFr.PagMjT0P0EYqRL/.KjPUA2vRSutGZo92Xr9Hh/JwwAJq/vi
