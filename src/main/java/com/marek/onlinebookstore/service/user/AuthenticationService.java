@@ -4,7 +4,9 @@ import com.marek.onlinebookstore.dto.user.login.UserLoginRequestDto;
 import com.marek.onlinebookstore.dto.user.login.UserLoginResponseDto;
 import com.marek.onlinebookstore.security.token.JwtUtil;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,9 +30,12 @@ public class AuthenticationService {
 
         User user = (User) authenticate.getPrincipal();
 
-        // Create a map to hold additional claims (like roles)
+        List<String> roles = user.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toList());
+
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getAuthorities());
+        claims.put("roles", roles);
 
         String token = jwtUtil.generateToken(user.getUsername(), claims);
 
