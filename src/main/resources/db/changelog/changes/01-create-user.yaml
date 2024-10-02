@@ -14,7 +14,7 @@ databaseChangeLog:
                   value: admin@simpleart.eu
               - column:
                   name: password
-                  value: $2a$10$EhBFr.PagMjT0P0EYqRL/.KjPUA2vRSutGZo92Xr9Hh/JwwAJq/vi
+                  value: $2y$10$blNkrqcs3nakbTOpndqVo.0wJNgS9tff0LhzY4OG4HW2LAekrs7AC
               - column:
                   name: first_name
                   value: password
